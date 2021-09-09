@@ -1,0 +1,15 @@
+"C:\Program Files\IAR Systems\arm_9102ks-Embedded Workbench 9.0\arm\bin\armPROC.dll" 
+
+"C:\Program Files\IAR Systems\arm_9102ks-Embedded Workbench 9.0\arm\bin\armJLINK.dll" 
+
+"C:\Users\boe\Documents\BoE\git\ewarm\lpc2138-sk\arm\9.10.2\NXP\LPC213x\IAR-P213x\Demo\Debug RAM\Exe\Lpc213x_demo.out" 
+
+--plugin="C:\Program Files\IAR Systems\arm_9102ks-Embedded Workbench 9.0\arm\bin\armbat.dll" 
+
+--device_macro="C:\Program Files\IAR Systems\arm_9102ks-Embedded Workbench 9.0\arm\config\debugger\NXP\LPC21xx_LPC22xx.dmac" 
+
+--macro="C:\Users\boe\Documents\BoE\git\ewarm\lpc2138-sk\arm\9.10.2\NXP\LPC213x\IAR-P213x\Demo\config\ram.mac" 
+
+
+
+

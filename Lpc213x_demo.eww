@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+  <project>
+    <path>$WS_DIR$\Lpc213x_demo.ewp</path>
+  </project>
+  <batchBuild>
+    <batchDefinition>
+      <name>All</name>
+      <member>
+        <project>Lpc213x_demo</project>
+        <configuration>Debug flash</configuration>
+      </member>
+      <member>
+        <project>Lpc213x_demo</project>
+        <configuration>Debug RAM</configuration>
+      </member>
+    </batchDefinition>
+  </batchBuild>
+</workspace>
+
+
