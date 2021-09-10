@@ -1,3 +1,4 @@
+#define BoE 1
 /*************************************************************************
  *
  *    Used with ICCARM and AARM.
@@ -633,7 +634,11 @@ int TIMER_SetCaptureAction (LPC_TimerChannel_t DevNum,
       if (TriggerType == 0)
         PINSEL0_bit.P0_10 = 0;
       else
+#ifdef BoE
+        PINSEL1_bit.P0_22 = 0x2;
+#else	
         PINSEL0_bit.P0_10 = 0x2;
+#endif        
       break;
     case CH1:
       if (TriggerType)

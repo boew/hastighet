@@ -314,7 +314,16 @@ LPC_Rtc_Date_t CurrData;
                               bool EnableInt,
                               void (* Fnpr)(void *),
                               void * FnprArg )
- */
+  TIMER_SetCaptureAction (TIMER1, CPCH0, 
+                          TimerCPTrigger_Rising+TimerCPTrigger_Falling,
+			  0, NULL, (void *) 0);
+
+  */
+#ifdef BoE
+  TIMER_SetCaptureAction (TIMER1, CPCH0, 
+                          TimerCPTrigger_Rising+TimerCPTrigger_Falling,
+			  0, NULL, (void *) 0);
+#endif  
   while(1)
   {
     if(TickSysFlag)
