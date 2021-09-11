@@ -141,6 +141,30 @@ int* pFlag = arg;
  *		
  *************************************************************************/
 #ifdef BoE
+/*
+
+  int TIMER_GetTimerCapture(LPC_TimerChannel_t DevNum, unsigned int CRNum,
+                            unsigned int * pCaptureValue)
+ */
+
+char boe_UART_Msg[80]="";
+unsigned int BoE_TC_tmp;
+unsigned int BoE_TCP_tmp;
+
+#define TimesN 16
+// volatile or local static ?
+volatile unsigned int times[TimesN];
+volatile int nTimes=0;
+// monitor ?
+void DoTimes(void* arg)
+{
+  unsigned int tmp1;
+  int tmp2;  
+  TIMER_GetTimerCapture(TIMER1, CPCH2, &tmp1);
+  times[nTimes] = tmp1;
+  tmp2 = (nTimes + 1) & (TimesN -1);
+  nTimes = tmp2;
+}
 void DelayResolution100us(Int32U Delay)
 {
   volatile int Flag = 1;
@@ -300,9 +324,12 @@ LPC_Rtc_Date_t CurrData;
 
   if(SysInit() == 0)
   {
+    UART_PutStringByPolling(UART1,"\n\rWas 0\n\r");
     // Start user program
     __enable_interrupt();
+    UART_PutStringByPolling(UART1,"\n\rEnabled 1\n\r");
     UserStart();
+    UART_PutStringByPolling(UART1,"\n\rStarted 2\n\r");
   }
   UART_PutString(UART0,(char*)UART_Menu);
   UART_PutString(UART1,(char*)UART_Menu);
@@ -320,9 +347,11 @@ LPC_Rtc_Date_t CurrData;
 
   */
 #ifdef BoE
-  TIMER_SetCaptureAction (TIMER1, CPCH0, 
+  int dummy;
+  /* CPCH2 = CAP1.2 = pin 0.17 */
+  TIMER_SetCaptureAction (TIMER1, CPCH2, 
                           TimerCPTrigger_Rising+TimerCPTrigger_Falling,
-			  0, NULL, (void *) 0);
+			  1, DoTimes, &dummy);
 #endif  
   while(1)
   {
@@ -433,7 +462,19 @@ LPC_Rtc_Date_t CurrData;
         UART_PutString(UART1,(char*)UART_Menu);
         break;
       default:
+#ifdef BoE
+	TIMER_GetTimerCapture(TIMER1, CPCH2, &BoE_TCP_tmp);
+	BoE_TC_tmp = TIMER_GetREGValue_TC(TIMER1);
+	sprintf(boe_UART_Msg,"\r\nTimes:\r\n");
+	UART_PutString(UART1,(char*)boe_UART_Msg);
+	for(BoE_TCP_tmp = 0; BoE_TCP_tmp < TimesN; BoE_TCP_tmp++)
+	  {
+	    sprintf(boe_UART_Msg,"\r\n\t%d:\t%d",BoE_TCP_tmp, times[BoE_TCP_tmp]);
+	    UART_PutString(UART1,(char*)boe_UART_Msg);
+	  }
+#else	
         UART_PutString(UART1,(char*)UART_Menu);
+#endif	
         break;
       }
     }
