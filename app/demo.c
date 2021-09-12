@@ -151,6 +151,7 @@ char boe_UART_Msg[80]="";
 unsigned int BoE_TC_tmp;
 unsigned int BoE_TCP_tmp;
 
+
 #define TimesN 16
 // volatile or local static ?
 volatile unsigned int times[TimesN];
@@ -165,6 +166,32 @@ void DoTimes(void* arg)
   tmp2 = (nTimes + 1) & (TimesN -1);
   nTimes = tmp2;
 }
+int getScaledV()
+{
+  const int system_f=14740;	 //14.74 MHz in kHz
+  const int prescale_by = 14;
+  const int circumference = 600; //0.6 m in mm
+  const int kmh_and_fixed_point_factor = 360; //units of (10m)/h
+
+  unsigned int periodCount = 0;
+  int currentIndex = TimesN + 1;
+  int indexPreviousPeriod = TimesN + 1;
+  unsigned int result;
+  while ((currentIndex != (nTimes -1)) && 
+         (currentIndex != ((nTimes -1) + TimesN)))
+    {
+      currentIndex = (nTimes - 1) & (TimesN-1);
+      if (0 > currentIndex) { currentIndex += TimesN ;}
+      indexPreviousPeriod = (currentIndex -2) & (TimesN -1);
+      if (0 > indexPreviousPeriod) { indexPreviousPeriod += TimesN ;}      
+      periodCount = times[currentIndex] - times[indexPreviousPeriod];
+    }
+  result = circumference * system_f * kmh_and_fixed_point_factor;
+  result /= prescale_by;
+  result /= periodCount;
+  return result;
+}
+
 void DelayResolution100us(Int32U Delay)
 {
   volatile int Flag = 1;
@@ -472,6 +499,8 @@ LPC_Rtc_Date_t CurrData;
 	    sprintf(boe_UART_Msg,"\r\n\t%d:\t%d",BoE_TCP_tmp, times[BoE_TCP_tmp]);
 	    UART_PutString(UART1,(char*)boe_UART_Msg);
 	  }
+	sprintf(boe_UART_Msg,"\r\nnTimes, Speed:\t%d, %d\r\n",nTimes, getScaledV());
+	UART_PutString(UART1,(char*)boe_UART_Msg);
 #else	
         UART_PutString(UART1,(char*)UART_Menu);
 #endif	
