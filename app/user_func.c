@@ -15,6 +15,8 @@
  *    $Revision: 28 $
 **************************************************************************/
 #include "user_func.h"
+//BoE
+extern int getScaledV();
 
 #define SCREEN_SAVER_INC  TRUE    /* Index increment */
 #define SCREEN_SAVER_DEC  FALSE   /* Index decrement */
@@ -220,6 +222,25 @@ LPC_Rtc_Date_t CurrData;
   *(pVarArg+16) = 0;
   RTC_GetDate(&CurrData);
   FormatDate(DataFormat,&CurrData,Temp);
+  ReplaceStr(pVarArg+17,Temp,FindOffSet(Temp,16),16);
+  *(pVarArg+33) = 0;
+  HD44780_CursorPosSet(HD44780_CURSOR_OFF, HD44780_CURSOR_BLINK,1, 1);
+}
+
+void FormatSpeed(int v_fixpoint, char *s)
+{
+  sprintf(s, "%3d km/h", v_fixpoint/100);
+}
+void GetTimeAndSpeed (MEMU_STING_DEF * pVarArg,MEMU_IND_DEF * MenuIndex,MEMU_TIME_OUT_DEF * MenuTO)
+{
+char Temp[20];
+LPC_Rtc_Time_t CurrTime;
+LPC_Rtc_Date_t CurrData;
+  RTC_GetTime(&CurrTime);
+  FormatTime(TimeFormat,&CurrTime,Temp);
+  ReplaceStr(pVarArg,Temp,FindOffSet(Temp,16),16);
+  *(pVarArg+16) = 0;
+  FormatSpeed(getScaledV(),Temp);
   ReplaceStr(pVarArg+17,Temp,FindOffSet(Temp,16),16);
   *(pVarArg+33) = 0;
   HD44780_CursorPosSet(HD44780_CURSOR_OFF, HD44780_CURSOR_BLINK,1, 1);

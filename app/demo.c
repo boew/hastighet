@@ -1,4 +1,5 @@
 #define BoE 1
+//#define BoEUART 1
 
 /*************************************************************************
  *
@@ -70,10 +71,13 @@ int SysAlarmFlag = 0;
 int B1_Short = 0;
 int B2_Short = 0;
 
-int TimeFormat = 2;
+//BoE int TimeFormat = 2;
+int TimeFormat = 1;
 int DataFormat = 1;
 
-int LightMode = LIGHT_AUTO;
+//BoE
+//int LightMode = LIGHT_AUTO;
+int LightMode = LIGHT_ALWAYS_ON;
 
 /*************************************************************************
  * Function Name: IRQSub
@@ -151,7 +155,6 @@ char boe_UART_Msg[80]="";
 unsigned int BoE_TC_tmp;
 unsigned int BoE_TCP_tmp;
 
-
 #define TimesN 16
 // volatile or local static ?
 volatile unsigned int times[TimesN];
@@ -186,6 +189,9 @@ int getScaledV()
       if (0 > indexPreviousPeriod) { indexPreviousPeriod += TimesN ;}      
       periodCount = times[currentIndex] - times[indexPreviousPeriod];
     }
+  if (0 == periodCount) {
+    return 0;
+  }
   result = circumference * system_f * kmh_and_fixed_point_factor;
   result /= prescale_by;
   result /= periodCount;
@@ -489,7 +495,7 @@ LPC_Rtc_Date_t CurrData;
         UART_PutString(UART1,(char*)UART_Menu);
         break;
       default:
-#ifdef BoE
+#ifdef BoEUART
 	TIMER_GetTimerCapture(TIMER1, CPCH2, &BoE_TCP_tmp);
 	BoE_TC_tmp = TIMER_GetREGValue_TC(TIMER1);
 	sprintf(boe_UART_Msg,"\r\nTimes:\r\n");

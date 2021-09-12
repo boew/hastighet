@@ -68,4 +68,6 @@ extern int DataFormat;
 
 extern int LightMode;
 
+//BoE
+extern void GetTimeAndSpeed(MEMU_STING_DEF * pVarArg,MEMU_IND_DEF * MenuIndex,MEMU_TIME_OUT_DEF * MenuTO);
 #endif  /* __USER_FUNC_H */

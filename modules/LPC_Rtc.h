@@ -98,7 +98,9 @@ typedef struct {
 	unsigned char DOY;    // Day of year
 } LPC_Rtc_DateTime_t;
 
-static LPC_Rtc_DateTime_t RTC_InitDateTime = {2005, 2, 14, 12, 0, 0};
+//BoE
+//static LPC_Rtc_DateTime_t RTC_InitDateTime = {2005, 2, 14, 12, 0, 0};
+static LPC_Rtc_DateTime_t RTC_InitDateTime = {2021, 9, 12, 0, 0, 0};
 static char *RTC_DOWTbl[] = {
 	"Sunday ",
 	"Monday ",
