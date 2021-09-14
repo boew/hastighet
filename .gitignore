@@ -3,3 +3,5 @@
 *.ewsample
 ExampleInfo.ENU.xml
 Debug RAM/
+Debug flash/
+*.crun
