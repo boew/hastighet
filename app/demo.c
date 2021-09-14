@@ -145,13 +145,7 @@ int* pFlag = arg;
  *		
  *************************************************************************/
 #ifdef BoE
-/*
-
-  int TIMER_GetTimerCapture(LPC_TimerChannel_t DevNum, unsigned int CRNum,
-                            unsigned int * pCaptureValue)
- */
-
-char boe_UART_Msg[80]="";
+char boe_UART_Msg[40]=""; // LCD 2 x16 chars + crlf + null
 unsigned int BoE_TC_tmp;
 unsigned int BoE_TCP_tmp;
 
