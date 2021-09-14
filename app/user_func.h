@@ -18,6 +18,9 @@
 
 #ifndef  __USER_FUNC_H
 #define  __USER_FUNC_H
+//BoE
+extern int getScaledV();
+extern void DoTimes(void* arg);
 
 #define BUTT_EVENT_1    1
 #define BUTT_EVENT_2    2

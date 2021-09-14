@@ -1,6 +1,3 @@
-#define BoE 1
-//#define BoEUART 1
-
 /*************************************************************************
  *
  *    Used with ICCARM and AARM.
@@ -71,12 +68,9 @@ int SysAlarmFlag = 0;
 int B1_Short = 0;
 int B2_Short = 0;
 
-//BoE int TimeFormat = 2;
 int TimeFormat = 1;
 int DataFormat = 1;
 
-//BoE
-//int LightMode = LIGHT_AUTO;
 int LightMode = LIGHT_ALWAYS_ON;
 
 /*************************************************************************
@@ -144,53 +138,6 @@ int* pFlag = arg;
  * Description: Timer1 CH0 subroutine - delay [100us]
  *		
  *************************************************************************/
-#ifdef BoE
-char boe_UART_Msg[40]=""; // LCD 2 x16 chars + crlf + null
-unsigned int BoE_TC_tmp;
-unsigned int BoE_TCP_tmp;
-
-#define TimesN 16
-// volatile or local static ?
-volatile unsigned int times[TimesN];
-volatile int nTimes=0;
-// monitor ?
-void DoTimes(void* arg)
-{
-  unsigned int tmp1;
-  int tmp2;  
-  TIMER_GetTimerCapture(TIMER1, CPCH2, &tmp1);
-  times[nTimes] = tmp1;
-  tmp2 = (nTimes + 1) & (TimesN -1);
-  nTimes = tmp2;
-}
-int getScaledV()
-{
-  const int system_f=14740;	 //14.74 MHz in kHz
-  const int prescale_by = 14;
-  const int circumference = 600; //0.6 m in mm
-  const int kmh_and_fixed_point_factor = 360; //units of (10m)/h
-
-  unsigned int periodCount = 0;
-  int currentIndex = TimesN + 1;
-  int indexPreviousPeriod = TimesN + 1;
-  unsigned int result;
-  while ((currentIndex != (nTimes -1)) && 
-         (currentIndex != ((nTimes -1) + TimesN)))
-    {
-      currentIndex = (nTimes - 1) & (TimesN-1);
-      if (0 > currentIndex) { currentIndex += TimesN ;}
-      indexPreviousPeriod = (currentIndex -2) & (TimesN -1);
-      if (0 > indexPreviousPeriod) { indexPreviousPeriod += TimesN ;}      
-      periodCount = times[currentIndex] - times[indexPreviousPeriod];
-    }
-  if (0 == periodCount) {
-    return 0;
-  }
-  result = circumference * system_f * kmh_and_fixed_point_factor;
-  result /= prescale_by;
-  result /= periodCount;
-  return result;
-}
 
 void DelayResolution100us(Int32U Delay)
 {
@@ -205,23 +152,6 @@ void DelayResolution100us(Int32U Delay)
   // Wait expire of delay
   while(Flag);
 }
-#else 
-void DelayResolution100us(Int32U Delay)
-{
-volatile int Flag = 1;
-  // Stop Timer 1
-  TIMER_Stop(TIMER1);
-  // Stop Reset Timer 1 counter
-  TIMER_Reset(TIMER1);
-  // Set action of match module CH0
-  TIMER_SetMatchAction(TIMER1, CH0, TimerAction_Interrupt | TimerAction_StopTimer,
-  Delay usec_T1*100, ClearFlag, (void *)&Flag, DONOTHING);
-  // Start Timer 1
-  TIMER_Start(TIMER1);
-  // Wait expire of delay
-  while(Flag);
-}
-#endif
 /*************************************************************************
  * Function Name: SysInit
  * Parameters: void
@@ -255,7 +185,6 @@ int SysInit(void)
   if (TIMER_Init(TIMER1, TIMER_PRECISION))
     return 1;
 
-#ifdef BoE
   // Stop Timer 1
   TIMER_Stop(TIMER1);
   // Stop Reset Timer 1 counter
@@ -263,7 +192,6 @@ int SysInit(void)
   // Set action of match module CH0
   // Start Timer 1
   TIMER_Start(TIMER1);
-#endif 
   
   // Initialize RTC
   if (RTC_Init(0))	
@@ -361,25 +289,11 @@ LPC_Rtc_Date_t CurrData;
   UART_PutString(UART0,(char*)UART_Menu);
   UART_PutString(UART1,(char*)UART_Menu);
   MenuSetEvent(MENU_LAST_IND);
-  /* BoE
-  int TIMER_SetCaptureAction (LPC_TimerChannel_t DevNum,
-                              unsigned char CPCHNum,
-                              unsigned char  TriggerType,
-                              bool EnableInt,
-                              void (* Fnpr)(void *),
-                              void * FnprArg )
-  TIMER_SetCaptureAction (TIMER1, CPCH0, 
-                          TimerCPTrigger_Rising+TimerCPTrigger_Falling,
-			  0, NULL, (void *) 0);
-
-  */
-#ifdef BoE
   int dummy;
   /* CPCH2 = CAP1.2 = pin 0.17 */
   TIMER_SetCaptureAction (TIMER1, CPCH2, 
                           TimerCPTrigger_Rising+TimerCPTrigger_Falling,
 			  1, DoTimes, &dummy);
-#endif  
   while(1)
   {
     if(TickSysFlag)
@@ -489,21 +403,7 @@ LPC_Rtc_Date_t CurrData;
         UART_PutString(UART1,(char*)UART_Menu);
         break;
       default:
-#ifdef BoEUART
-	TIMER_GetTimerCapture(TIMER1, CPCH2, &BoE_TCP_tmp);
-	BoE_TC_tmp = TIMER_GetREGValue_TC(TIMER1);
-	sprintf(boe_UART_Msg,"\r\nTimes:\r\n");
-	UART_PutString(UART1,(char*)boe_UART_Msg);
-	for(BoE_TCP_tmp = 0; BoE_TCP_tmp < TimesN; BoE_TCP_tmp++)
-	  {
-	    sprintf(boe_UART_Msg,"\r\n\t%d:\t%d",BoE_TCP_tmp, times[BoE_TCP_tmp]);
-	    UART_PutString(UART1,(char*)boe_UART_Msg);
-	  }
-	sprintf(boe_UART_Msg,"\r\nnTimes, Speed:\t%d, %d\r\n",nTimes, getScaledV());
-	UART_PutString(UART1,(char*)boe_UART_Msg);
-#else	
         UART_PutString(UART1,(char*)UART_Menu);
-#endif	
         break;
       }
     }

@@ -15,8 +15,6 @@
  *    $Revision: 28 $
 **************************************************************************/
 #include "user_func.h"
-//BoE
-extern int getScaledV();
 
 #define SCREEN_SAVER_INC  TRUE    /* Index increment */
 #define SCREEN_SAVER_DEC  FALSE   /* Index decrement */
@@ -558,3 +556,66 @@ void CursorOff (MEMU_STING_DEF * pVarArg,MEMU_IND_DEF * MenuIndex, MEMU_TIME_OUT
 {
   HD44780_CursorPosSet(HD44780_CURSOR_OFF, HD44780_CURSOR_NORM,1, 1);
 }
+
+//BoE
+char boe_UART_Msg[40]=""; // LCD 2 x16 chars + crlf + null
+unsigned int BoE_TC_tmp;
+unsigned int BoE_TCP_tmp;
+/*
+	TIMER_GetTimerCapture(TIMER1, CPCH2, &BoE_TCP_tmp);
+	sprintf(boe_UART_Msg,"\r\nTimes:\r\n");
+	UART_PutString(UART1,(char*)boe_UART_Msg);
+	for(BoE_TCP_tmp = 0; BoE_TCP_tmp < TimesN; BoE_TCP_tmp++)
+	  {
+	    sprintf(boe_UART_Msg,"\r\n\t%d:\t%d",BoE_TCP_tmp, times[BoE_TCP_tmp]);
+	    UART_PutString(UART1,(char*)boe_UART_Msg);
+	  }
+
+sprintf(boe_UART_Msg,"\r\nnTimes, Speed:\t%d, %d\r\n",nTimes, getScaledV());
+UART_PutString(UART1,(char*)boe_UART_Msg);
+*/
+
+
+#define TimesN 16
+// volatile or local static ?
+volatile unsigned int times[TimesN];
+volatile int nTimes=0;
+// monitor ?
+void DoTimes(void* arg)
+{
+  unsigned int tmp1;
+  int tmp2;  
+  TIMER_GetTimerCapture(TIMER1, CPCH2, &tmp1);
+  times[nTimes] = tmp1;
+  tmp2 = (nTimes + 1) & (TimesN -1);
+  nTimes = tmp2;
+}
+int getScaledV()
+{
+  const int system_f=14740;	 //14.74 MHz in kHz
+  const int prescale_by = 14;
+  const int circumference = 600; //0.6 m in mm
+  const int kmh_and_fixed_point_factor = 360; //units of (10m)/h
+
+  unsigned int periodCount = 0;
+  int currentIndex = TimesN + 1;
+  int indexPreviousPeriod = TimesN + 1;
+  unsigned int result;
+  while ((currentIndex != (nTimes -1)) && 
+         (currentIndex != ((nTimes -1) + TimesN)))
+    {
+      currentIndex = (nTimes - 1) & (TimesN-1);
+      if (0 > currentIndex) { currentIndex += TimesN ;}
+      indexPreviousPeriod = (currentIndex -2) & (TimesN -1);
+      if (0 > indexPreviousPeriod) { indexPreviousPeriod += TimesN ;}      
+      periodCount = times[currentIndex] - times[indexPreviousPeriod];
+    }
+  if (0 == periodCount) {
+    return 0;
+  }
+  result = circumference * system_f * kmh_and_fixed_point_factor;
+  result /= prescale_by;
+  result /= periodCount;
+  return result;
+}
+

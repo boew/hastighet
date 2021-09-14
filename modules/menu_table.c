@@ -1,4 +1,3 @@
-#define BoE 1
 /*************************************************************************
  *
  *    Used with ICCARM and AARM.
@@ -33,20 +32,12 @@
 /* Arg format */
 const MEMU_STING_DEF ArgFormate [] = "                \2                \2";
 
-#ifdef BoE
 const MENU_ACTION_SHAIN_DEF MenuActionEventChain0 [] =
 {
   {MENU_TICK_EVENT,MENU_TIME_AND_DATA_SHOW,0,(MEMU_STING_DEF *)ArgFormate,GetTimeAndSpeed,NULL},
   {0,0,1,(MEMU_STING_DEF *)ArgFormate,NULL,NULL},
 };
-#else
-/* Welcome */
-const MENU_ACTION_SHAIN_DEF MenuActionEventChain0 [] =
-{
-  {MENU_TICK_EVENT,MENU_TIME_AND_DATA_SHOW,MENU_SCREEN_SAVER_DLY,(MEMU_STING_DEF *)ArgFormate,GetTimeAndSpeed,NULL},
-  {0,0,MENU_TIME_OUT_NOT_UPADATE,(MEMU_STING_DEF *)ArgFormate,NULL,NULL},
-};
-#endif 
+
 /* Clock and Data setup */
 const MENU_ACTION_SHAIN_DEF MenuActionEventChain1 [] =
 {
