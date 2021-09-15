@@ -233,7 +233,7 @@ void GetTimeAndSpeed (MEMU_STING_DEF * pVarArg,MEMU_IND_DEF * MenuIndex,MEMU_TIM
 {
 char Temp[20];
 LPC_Rtc_Time_t CurrTime;
-LPC_Rtc_Date_t CurrData;
+//LPC_Rtc_Date_t CurrData;
   RTC_GetTime(&CurrTime);
   FormatTime(TimeFormat,&CurrTime,Temp);
   ReplaceStr(pVarArg,Temp,FindOffSet(Temp,16),16);
@@ -576,39 +576,45 @@ UART_PutString(UART1,(char*)boe_UART_Msg);
 */
 
 
-#define TimesN 16
-// volatile or local static ?
-volatile unsigned int times[TimesN];
+#define TIME_BUF_SIZE (1 << 4) /*  must be power of two - circular buffer */
+#define TIME_BUF_MASK (TIME_BUF_SIZE - 1) /* mask for index to circular buffer */
+volatile unsigned int times[ TIME_BUF_SIZE ];
 volatile int nTimes=0;
-// monitor ?
+
+// BoE TBD: Make this __monitor ?
 void DoTimes(void* arg)
 {
   unsigned int tmp1;
   int tmp2;  
   TIMER_GetTimerCapture(TIMER1, CPCH2, &tmp1);
   times[nTimes] = tmp1;
-  tmp2 = (nTimes + 1) & (TimesN -1);
+  tmp2 = (nTimes + 1) & TIME_BUF_MASK;
   nTimes = tmp2;
 }
+
 int getScaledV()
 {
-  const int system_f=14740;	 //14.74 MHz in kHz
+  const int system_f=14740;	/* 14.74 MHz in kHz */
   const int prescale_by = 14;
-  const int circumference = 600; //0.6 m in mm
-  const int kmh_and_fixed_point_factor = 360; //units of (10m)/h
+  const int circumference = 600;	      /* 0.6 m in mm */
+  const int kmh_and_fixed_point_factor = 360; /* units of (10m)/h */
 
   unsigned int periodCount = 0;
-  int currentIndex = TimesN + 1;
-  int indexPreviousPeriod = TimesN + 1;
-  unsigned int result;
-  while ((currentIndex != (nTimes -1)) && 
-         (currentIndex != ((nTimes -1) + TimesN)))
+  int currentIndex = TIME_BUF_SIZE * 2; /* Never "== nTimes-1" nor "== (nTimes-1)+TIME_BUF_SIZE" */
+  int indexPreviousPeriod = 0; 
+  unsigned int result = 0;
+
+  while (((nTimes-1) != currentIndex ) && 
+         (((nTimes-1) + TIME_BUF_SIZE) != currentIndex))
     {
-      currentIndex = (nTimes - 1) & (TimesN-1);
-      if (0 > currentIndex) { currentIndex += TimesN ;}
-      indexPreviousPeriod = (currentIndex -2) & (TimesN -1);
-      if (0 > indexPreviousPeriod) { indexPreviousPeriod += TimesN ;}      
-      periodCount = times[currentIndex] - times[indexPreviousPeriod];
+      currentIndex = (nTimes - 1) & TIME_BUF_MASK;
+      if (0 > currentIndex) { currentIndex += TIME_BUF_SIZE; }
+      
+      indexPreviousPeriod = ( currentIndex - 2 ) & TIME_BUF_MASK;
+      if (0 > indexPreviousPeriod) { indexPreviousPeriod += TIME_BUF_SIZE ;}      
+
+      periodCount  = times[currentIndex];
+      periodCount -= times[indexPreviousPeriod];      
     }
   if (0 == periodCount) {
     return 0;
@@ -618,4 +624,5 @@ int getScaledV()
   result /= periodCount;
   return result;
 }
+
 
