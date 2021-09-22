@@ -289,11 +289,10 @@ LPC_Rtc_Date_t CurrData;
   UART_PutString(UART0,(char*)UART_Menu);
   UART_PutString(UART1,(char*)UART_Menu);
   MenuSetEvent(MENU_LAST_IND);
-  int dummy;
   /* CPCH2 = CAP1.2 = pin 0.17 */
   TIMER_SetCaptureAction (TIMER1, CPCH2, 
                           TimerCPTrigger_Rising+TimerCPTrigger_Falling,
-			  1, DoTimes, &dummy);
+			  1, DoTimes, &CaptureCount);
   while(1)
   {
     if(TickSysFlag)

@@ -19,8 +19,11 @@
 #ifndef  __USER_FUNC_H
 #define  __USER_FUNC_H
 //BoE
+typedef unsigned long long CaptureCount_t;
 extern int getScaledV();
+extern CaptureCount_t getScaledDistance();
 extern void DoTimes(void* arg);
+extern CaptureCount_t CaptureCount;
 
 #define BUTT_EVENT_1    1
 #define BUTT_EVENT_2    2
@@ -73,4 +76,5 @@ extern int LightMode;
 
 //BoE
 extern void GetTimeAndSpeed(MEMU_STING_DEF * pVarArg,MEMU_IND_DEF * MenuIndex,MEMU_TIME_OUT_DEF * MenuTO);
+extern void GetDistAndSpeed(MEMU_STING_DEF * pVarArg,MEMU_IND_DEF * MenuIndex,MEMU_TIME_OUT_DEF * MenuTO);
 #endif  /* __USER_FUNC_H */

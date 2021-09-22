@@ -229,7 +229,11 @@ void FormatSpeed(int v_fixpoint, char *s)
 {
   sprintf(s, "%3d km/h", v_fixpoint/100);
 }
-void GetTimeAndSpeed (MEMU_STING_DEF * pVarArg,MEMU_IND_DEF * MenuIndex,MEMU_TIME_OUT_DEF * MenuTO)
+void FormatDist(int dkm, int d01km, char *s)
+{
+  sprintf(s, "%3d.%1d km ", dkm, d01km);
+}
+void renamed_GetTimeAndSpeed (MEMU_STING_DEF * pVarArg,MEMU_IND_DEF * MenuIndex,MEMU_TIME_OUT_DEF * MenuTO)
 {
 char Temp[20];
 LPC_Rtc_Time_t CurrTime;
@@ -243,6 +247,25 @@ LPC_Rtc_Time_t CurrTime;
   *(pVarArg+33) = 0;
   HD44780_CursorPosSet(HD44780_CURSOR_OFF, HD44780_CURSOR_BLINK,1, 1);
 }
+
+void GetDistAndSpeed (MEMU_STING_DEF * pVarArg,MEMU_IND_DEF * MenuIndex,MEMU_TIME_OUT_DEF * MenuTO)
+{
+  char Temp[20];
+  int dist;
+  int dkm;
+  int d01km;
+  dist = getScaledDistance();
+  dkm = dist/10;
+  d01km = dist - dkm*10;
+  FormatDist(dkm, d01km,Temp);
+  ReplaceStr(pVarArg,Temp,FindOffSet(Temp,16),16);
+  *(pVarArg+16) = 0;
+  FormatSpeed(getScaledV(),Temp);
+  ReplaceStr(pVarArg+17,Temp,FindOffSet(Temp,16),16);
+  *(pVarArg+33) = 0;
+  HD44780_CursorPosSet(HD44780_CURSOR_OFF, HD44780_CURSOR_BLINK,1, 1);
+}
+
 
 /*************************************************************************
  * Function Name: ButtonsInit
@@ -580,6 +603,8 @@ UART_PutString(UART1,(char*)boe_UART_Msg);
 #define TIME_BUF_MASK (TIME_BUF_SIZE - 1) /* mask for index to circular buffer */
 volatile unsigned int times[ TIME_BUF_SIZE ];
 volatile int nTimes=0;
+CaptureCount_t CaptureCount = 0;
+
 
 // BoE TBD: Make this __monitor ?
 void DoTimes(void* arg)
@@ -590,6 +615,7 @@ void DoTimes(void* arg)
   times[nTimes] = tmp1;
   tmp2 = (nTimes + 1) & TIME_BUF_MASK;
   nTimes = tmp2;
+  (*((CaptureCount_t *) arg))++;
 }
 
 int getScaledV()
@@ -623,6 +649,17 @@ int getScaledV()
   result /= prescale_by;
   result /= periodCount;
   return result;
+}
+
+CaptureCount_t getScaledDistance()
+{
+  CaptureCount_t tmp;
+  const int circumference = 600;	      /* 0.6 m in mm */
+  tmp  = CaptureCount;
+  tmp *= circumference; /* mm */
+  tmp /= 1000;	/* m */
+  tmp /= 100;	/* (100m) */
+  return tmp;
 }
 
 
