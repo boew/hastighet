@@ -56,10 +56,27 @@ __root const unsigned int crp = 0xFFFFFFFF;
 #define LIGHT_ALWAYS_ON   2
 #define LIGHT_AUTO_OFF_TO TICK_PER_SECOND*10 /* 10sec */
 
-#define GET_TIME          '1'
-#define GET_DATE          '2'
+#define GET_TIME          '0'
+#define GET_DATE          '1'
+#define GET_LEN_PULSE     '2'
+#define GET_OFFSET_T      '3'
+#define SET_TIME          '4'
+#define SET_DATE          '5'
+#define SET_LEN_R         '6'
+#define SET_OFFSET_T      '7'
 
-const char UART_Menu[] = "\r\nUart commands\r\n'1' Get Time\r\n'2' Get Date\r\n'?' Help\n\r";
+
+
+const char UART_Menu[] = "\r\nUart commands:\r\n" 
+                         "'0' Get Time\r\n"
+                         "'1' Get Date\r\n"
+                         "'2' Get Length per pulse\r\n"
+                         "'3' Get Offset for Trip\r\n"
+                         "'4' Set Time\r\n"
+                         "'5' Set Date\r\n"
+                         "'6' Set Length per pulse\r\n"
+                         "'7' Set Offset for Trip\r\n"
+                         "'?' Help\n\r";
 
 volatile int TickSysFlag = 0;
 int SysTimeUpdateFlag = 0;
@@ -396,6 +413,28 @@ LPC_Rtc_Date_t CurrData;
         UART_PutString(UART1,(char*)UART_Menu);
         break;
       case GET_DATE:
+        RTC_GetDate(&CurrData);
+        FormatDate(DataFormat,&CurrData,TranBuff);
+        UART_PutString(UART1,TranBuff);
+        UART_PutString(UART1,(char*)UART_Menu);
+        break;
+      case GET_LEN_PULSE:
+        //sprintf(TranBuff, "GET_LEN_PULSE");
+        UART_PutString(UART1,"GET_LEN_PULSE");
+        UART_PutString(UART1,(char*)UART_Menu);
+        break;
+      case GET_OFFSET_T:
+        //sprintf(TranBuff, "GET_OFFSET_T");
+        UART_PutString(UART1,"GET_OFFSET_T");
+        UART_PutString(UART1,(char*)UART_Menu);
+        break;
+      case SET_TIME:
+        RTC_GetTime(&CurrTime);
+        FormatTime(TimeFormat,&CurrTime,TranBuff);
+        UART_PutString(UART1,TranBuff);
+        UART_PutString(UART1,(char*)UART_Menu);
+        break;
+      case SET_DATE:
         RTC_GetDate(&CurrData);
         FormatDate(DataFormat,&CurrData,TranBuff);
         UART_PutString(UART1,TranBuff);
