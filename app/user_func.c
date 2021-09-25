@@ -229,9 +229,9 @@ void FormatSpeed(int v_fixpoint, char *s)
 {
   sprintf(s, "%3d km/h", v_fixpoint/100);
 }
-void FormatDist(int dkm, int d01km, char *s)
+void FormatDist(int dkm, int d01km, int tkm, int t01km,  char *s)
 {
-  sprintf(s, "%3d.%1d km ", dkm, d01km);
+  sprintf(s, "%03d.%1d %03d.%1d [km] ", dkm, d01km, tkm, t01km);
 }
 void renamed_GetTimeAndSpeed (MEMU_STING_DEF * pVarArg,MEMU_IND_DEF * MenuIndex,MEMU_TIME_OUT_DEF * MenuTO)
 {
@@ -254,10 +254,16 @@ void GetDistAndSpeed (MEMU_STING_DEF * pVarArg,MEMU_IND_DEF * MenuIndex,MEMU_TIM
   int dist;
   int dkm;
   int d01km;
+  int trip;
+  int tkm;
+  int t01km;
   dist = getScaledDistance();
   dkm = dist/10;
   d01km = dist - dkm*10;
-  FormatDist(dkm, d01km,Temp);
+  trip = getScaledTrip();
+  tkm = trip/10;
+  t01km = trip - tkm*10;
+  FormatDist(dkm, d01km, tkm, t01km, Temp);
   ReplaceStr(pVarArg,Temp,FindOffSet(Temp,16),16);
   *(pVarArg+16) = 0;
   FormatSpeed(getScaledV(),Temp);
@@ -604,6 +610,7 @@ UART_PutString(UART1,(char*)boe_UART_Msg);
 volatile unsigned int times[ TIME_BUF_SIZE ];
 volatile int nTimes=0;
 CaptureCount_t CaptureCount = 0;
+CaptureCount_t TripOffset = 0;
 
 
 // BoE TBD: Make this __monitor ?
@@ -651,12 +658,31 @@ int getScaledV()
   return result;
 }
 
-CaptureCount_t getScaledDistance()
+int getScaledDistance()
 {
   CaptureCount_t tmp;
-  const int circumference = 600;	      /* 0.6 m in mm */
+#if 0  
+  const int half_circumference = 300;	      /* 0.6 m per revolution divided by 2:   600/2 mm = 300 mm (triggering twice per revolution)*/
+#else
+  const int half_circumference = 30000;
+#endif  
   tmp  = CaptureCount;
-  tmp *= circumference; /* mm */
+  tmp *= half_circumference; /* mm */
+  tmp /= 1000;	/* m */
+  tmp /= 100;	/* (100m) */
+  return tmp;
+}
+
+int getScaledTrip()
+{
+  CaptureCount_t tmp;
+#if 0  
+  const int half_circumference = 300;	      /* 0.6 m per revolution divided by 2:   600/2 mm = 300 mm (triggering twice per revolution)*/
+#else
+  const int half_circumference = 30000;
+#endif  
+  tmp  = CaptureCount - TripOffset;
+  tmp *= half_circumference; /* mm */
   tmp /= 1000;	/* m */
   tmp /= 100;	/* (100m) */
   return tmp;

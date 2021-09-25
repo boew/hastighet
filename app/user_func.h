@@ -21,9 +21,11 @@
 //BoE
 typedef unsigned long long CaptureCount_t;
 extern int getScaledV();
-extern CaptureCount_t getScaledDistance();
+extern int getScaledDistance();
+extern int getScaledTrip();
 extern void DoTimes(void* arg);
 extern CaptureCount_t CaptureCount;
+extern CaptureCount_t TripOffset;
 
 #define BUTT_EVENT_1    1
 #define BUTT_EVENT_2    2
