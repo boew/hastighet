@@ -229,9 +229,9 @@ void FormatSpeed(int v_fixpoint, char *s)
 {
   sprintf(s, "%3d km/h", v_fixpoint/100);
 }
-void FormatDist(int dkm, int d01km, int tkm, int t01km,  char *s)
+void FormatDist(int dkm, int tkm, char *s)
 {
-  sprintf(s, "%03d.%1d %03d.%1d [km] ", dkm, d01km, tkm, t01km);
+  sprintf(s, "%03d %03d [km] ", dkm, tkm);
 }
 void renamed_GetTimeAndSpeed (MEMU_STING_DEF * pVarArg,MEMU_IND_DEF * MenuIndex,MEMU_TIME_OUT_DEF * MenuTO)
 {
@@ -252,18 +252,10 @@ void GetDistAndSpeed (MEMU_STING_DEF * pVarArg,MEMU_IND_DEF * MenuIndex,MEMU_TIM
 {
   char Temp[20];
   int dist;
-  int dkm;
-  int d01km;
   int trip;
-  int tkm;
-  int t01km;
   dist = getScaledDistance();
-  dkm = dist/10;
-  d01km = dist - dkm*10;
   trip = getScaledTrip();
-  tkm = trip/10;
-  t01km = trip - tkm*10;
-  FormatDist(dkm, d01km, tkm, t01km, Temp);
+  FormatDist(dist, trip, Temp);
   ReplaceStr(pVarArg,Temp,FindOffSet(Temp,16),16);
   *(pVarArg+16) = 0;
   FormatSpeed(getScaledV(),Temp);
@@ -608,37 +600,37 @@ UART_PutString(UART1,(char*)boe_UART_Msg);
 #define TIME_BUF_SIZE (1 << 4) /*  must be power of two - circular buffer */
 #define TIME_BUF_MASK (TIME_BUF_SIZE - 1) /* mask for index to circular buffer */
 volatile unsigned int times[ TIME_BUF_SIZE ];
-volatile int nTimes=0;
-CaptureCount_t CaptureCount = 0;
-CaptureCount_t TripOffset = 0;
+volatile unsigned long long nTimes = 0; 
+unsigned long long CaptureCount = 0;
+unsigned long long TripOffset = 0;
+/* 0.6 m per revolution
+   divided by 2 (triggering twice per revolution):   
+   600/2 mm = 300 mm 
+*/
 
-
+unsigned int distancePerPulse_mm = 600; // mm 
+unsigned int captureCountDiff_to_10mh = 14740 / 14 * 600 * 360; // units of (10m) / h = (0.01 km)/h
+/* 14.74 MHz timer clock, divide by 14 prescaling, 600 mm / sensor pulse, (3.6 km/h per m/s) * 100 */
+ 
 // BoE TBD: Make this __monitor ?
 void DoTimes(void* arg)
 {
   unsigned int tmp1;
   int tmp2;  
   TIMER_GetTimerCapture(TIMER1, CPCH2, &tmp1);
-  times[nTimes] = tmp1;
-  tmp2 = (nTimes + 1) & TIME_BUF_MASK;
+  times[nTimes & TIME_BUF_MASK] = tmp1;
+  tmp2 = (nTimes + 1);
   nTimes = tmp2;
-  (*((CaptureCount_t *) arg))++;
+  (*((unsigned long long *) arg))++;
 }
 
 int getScaledV()
 {
-  const int system_f=14740;	/* 14.74 MHz in kHz */
-  const int prescale_by = 14;
-  const int circumference = 600;	      /* 0.6 m in mm */
-  const int kmh_and_fixed_point_factor = 360; /* units of (10m)/h */
-
   unsigned int periodCount = 0;
-  int currentIndex = TIME_BUF_SIZE * 2; /* Never "== nTimes-1" nor "== (nTimes-1)+TIME_BUF_SIZE" */
+  int currentIndex = -3; /* Never "== nTimes-1" */
   int indexPreviousPeriod = 0; 
-  unsigned int result = 0;
 
-  while (((nTimes-1) != currentIndex ) && 
-         (((nTimes-1) + TIME_BUF_SIZE) != currentIndex))
+  while (((nTimes-1) & TIME_BUF_MASK) != currentIndex ) 
     {
       currentIndex = (nTimes - 1) & TIME_BUF_MASK;
       if (0 > currentIndex) { currentIndex += TIME_BUF_SIZE; }
@@ -652,40 +644,17 @@ int getScaledV()
   if (0 == periodCount) {
     return 0;
   }
-  result = circumference * system_f * kmh_and_fixed_point_factor;
-  result /= prescale_by;
-  result /= periodCount;
-  return result;
+  return (captureCountDiff_to_10mh / periodCount);
 }
 
 int getScaledDistance()
 {
-  CaptureCount_t tmp;
-#if 0  
-  const int half_circumference = 300;	      /* 0.6 m per revolution divided by 2:   600/2 mm = 300 mm (triggering twice per revolution)*/
-#else
-  const int half_circumference = 30000;
-#endif  
-  tmp  = CaptureCount;
-  tmp *= half_circumference; /* mm */
-  tmp /= 1000;	/* m */
-  tmp /= 100;	/* (100m) */
-  return tmp;
+  return (nTimes * distancePerPulse_mm / 1000000);
 }
 
 int getScaledTrip()
 {
-  CaptureCount_t tmp;
-#if 0  
-  const int half_circumference = 300;	      /* 0.6 m per revolution divided by 2:   600/2 mm = 300 mm (triggering twice per revolution)*/
-#else
-  const int half_circumference = 30000;
-#endif  
-  tmp  = CaptureCount - TripOffset;
-  tmp *= half_circumference; /* mm */
-  tmp /= 1000;	/* m */
-  tmp /= 100;	/* (100m) */
-  return tmp;
+  return ((nTimes - TripOffset) * distancePerPulse_mm / 1000000) ;
 }
 
 

@@ -19,13 +19,12 @@
 #ifndef  __USER_FUNC_H
 #define  __USER_FUNC_H
 //BoE
-typedef unsigned long long CaptureCount_t;
 extern int getScaledV();
 extern int getScaledDistance();
 extern int getScaledTrip();
 extern void DoTimes(void* arg);
-extern CaptureCount_t CaptureCount;
-extern CaptureCount_t TripOffset;
+extern unsigned long long CaptureCount;
+extern unsigned long long TripOffset;
 
 #define BUTT_EVENT_1    1
 #define BUTT_EVENT_2    2

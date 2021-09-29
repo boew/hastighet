@@ -308,7 +308,8 @@ LPC_Rtc_Date_t CurrData;
   MenuSetEvent(MENU_LAST_IND);
   /* CPCH2 = CAP1.2 = pin 0.17 */
   TIMER_SetCaptureAction (TIMER1, CPCH2, 
-                          TimerCPTrigger_Rising+TimerCPTrigger_Falling,
+//                          TimerCPTrigger_Rising+TimerCPTrigger_Falling,
+                          TimerCPTrigger_Rising,
 			  1, DoTimes, &CaptureCount);
   while(1)
   {
@@ -424,8 +425,8 @@ LPC_Rtc_Date_t CurrData;
         UART_PutString(UART1,(char*)UART_Menu);
         break;
       case GET_OFFSET_T:
-        //sprintf(TranBuff, "GET_OFFSET_T");
-        UART_PutString(UART1,"GET_OFFSET_T");
+        sprintf(TranBuff, "Trip Offset %lld", TripOffset);
+        UART_PutString(UART1,TranBuff);
         UART_PutString(UART1,(char*)UART_Menu);
         break;
       case SET_TIME:
