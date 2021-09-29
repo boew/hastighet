@@ -311,6 +311,11 @@ LPC_Rtc_Date_t CurrData;
 //                          TimerCPTrigger_Rising+TimerCPTrigger_Falling,
                           TimerCPTrigger_Rising,
 			  1, DoTimes, &CaptureCount);
+//BoE 2021-09-29
+  IO0DIR_bit.P0_18 = 1;
+  IO0CLR_bit.P0_18 = 1;
+  IO0SET_bit.P0_18 = 1;
+  
   while(1)
   {
     if(TickSysFlag)
