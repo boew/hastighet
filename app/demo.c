@@ -312,15 +312,28 @@ LPC_Rtc_Date_t CurrData;
                           TimerCPTrigger_Rising,
 			  1, DoTimes, &CaptureCount);
 //BoE 2021-09-29
+// TICK_PER_SECOND = 100 <=> ~10 ms / tick; 
+// BoE_tick_divisor = 5 ==> ~20Hz  toggle  ==> 10 Hz frequency
+  int BoE_tick_divisor=1; 
+  int BoE_tick_counter=0;
+  int BoE_tick_tbd_SET=0;  
   IO0DIR_bit.P0_18 = 1;
-  IO0CLR_bit.P0_18 = 1;
-  IO0SET_bit.P0_18 = 1;
   
   while(1)
   {
     if(TickSysFlag)
     {
       TickSysFlag = 0;
+      BoE_tick_counter++;
+      if (BoE_tick_counter >= BoE_tick_divisor) {
+        if (BoE_tick_tbd_SET & 1) {
+          IO0SET_bit.P0_18 = 1;
+        } else {
+          IO0CLR_bit.P0_18 = 1;
+        };
+        BoE_tick_counter = 0;
+        BoE_tick_tbd_SET ^= 1;
+      }
       /* Sys tick event */
       MenuSetEvent(MENU_TICK_EVENT);
       /* Screensaver Time out count */
