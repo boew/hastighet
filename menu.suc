@@ -1,0 +1,8 @@
+possible calls Menu  : ADC_Init, ADC_Measure, CursorOff, GetDistAndSpeed, IlluminationModeCursorOn, IlluminationNextMode, IlluminationShow, ScreenSaver, ScreenSaverInit;
+
+possible calls IRQ_Handler  : RTC_ISR, TIMER0_ISR, TIMER1_ISR, UART0_ISR, UART1_ISR, UART1_ISR;
+
+possible calls TIMER0_ISR : SetSysTickFlag;
+possible calls TIMER1_ISR : ClearFlag, DoTimes;
+
+

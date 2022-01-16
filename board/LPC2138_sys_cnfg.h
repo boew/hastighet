@@ -29,8 +29,9 @@
 /* MAM Initialization State */
 #define MAM_CTRL          MAM_FULL
 /* MAM Initialization Timing*/
-#define MAM_DIV           MAMCycle3
-
+//BoE
+//#define MAM_DIV           MAMCycle3
+#define MAM_DIV           MAMCycle1
 #endif /* __LPC2138_SYS_CNFG_H */
 
 

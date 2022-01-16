@@ -67,7 +67,7 @@ __root const unsigned int crp = 0xFFFFFFFF;
 
 
 
-const char UART_Menu[] = "\r\nUart commands:\r\n" 
+const char UART_Menu[] = "\r\nUART commands:\r\n" 
                          "'0' Get Time\r\n"
                          "'1' Get Date\r\n"
                          "'2' Get Length per pulse\r\n"
@@ -438,6 +438,16 @@ LPC_Rtc_Date_t CurrData;
       case SET_DATE:
         RTC_GetDate(&CurrData);
         FormatDate(DataFormat,&CurrData,TranBuff);
+        UART_PutString(UART1,TranBuff);
+        UART_PutString(UART1,(char*)UART_Menu);
+        break;
+      case 99:
+        //sprintf(TranBuff, "GET_LEN_PULSE");
+        UART_PutString(UART1,"SET_LEN_PULSE");
+        UART_PutString(UART1,(char*)UART_Menu);
+        break;
+      case 100:
+        sprintf(TranBuff, "Set Trip Offset");
         UART_PutString(UART1,TranBuff);
         UART_PutString(UART1,(char*)UART_Menu);
         break;

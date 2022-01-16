@@ -926,15 +926,15 @@
                 </option>
                 <option>
                     <name>IlinkStackAnalysisEnable</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>IlinkStackControlFile</name>
-                    <state></state>
+                    <state>C:\Users\boe\Documents\BoE\git\ewarm\lpc2138-sk\arm\9.10.2\NXP\LPC213x\IAR-P213x\Demo\menu.suc</state>
                 </option>
                 <option>
                     <name>IlinkStackCallGraphFile</name>
-                    <state></state>
+                    <state>C:\Users\boe\Documents\BoE\git\ewarm\lpc2138-sk\arm\9.10.2\NXP\LPC213x\IAR-P213x\Demo\stackUsage.xml</state>
                 </option>
                 <option>
                     <name>CrcAlgorithm</name>
@@ -1263,15 +1263,15 @@
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>CCPreprocComments</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>CCPreprocLine</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>CCListCFile</name>

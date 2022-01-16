@@ -1,0 +1,28 @@
+Uncalled function	"ClearFlag": 0x4000'3edb
+Uncalled function	"NonVectISR": 0x4000'3ed9
+Uncalled function	"RTC_ISR": 0x4000'4cbd
+Uncalled function	"TIMER0_ISR": 0x4000'0e7d
+Uncalled function	"TIMER1_ISR": 0x4000'0f4b
+Uncalled function	"UART0_ISR": 0x4000'475f
+Uncalled function	"UART1_ISR": 0x4000'4849
+Uncalled function	"DoTimes": 0x4000'36a7
+Uncalled function	"SetSysTickFlag": 0x4000'33d9
+
+
+RTC_ISR
+TIMER0_ISR
+TIMER1_ISR
+UART0_ISR
+UART1_ISR
+UART1_ISR
+
+ClearFlag
+DoTimes
+SetSysTickFlag
+
+NonVectISR
+RTC_ISR
+TIMER0_ISR
+TIMER1_ISR
+UART0_ISR
+UART1_ISR

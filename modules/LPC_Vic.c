@@ -217,7 +217,7 @@ void VIC_DisableNonVectoredIRQ(void)
  *
  *************************************************************************/
 void VIC_SetVectoredIRQ(void(*pIRQSub)(), LPC_VicIrqSlots_t VicIrqSlot, unsigned int VicIntSource)
-{
+{ //BoE#####################
 unsigned long volatile *pReg;
   // load base address of vectored address registers
   pReg = &VICVectAddr0;
