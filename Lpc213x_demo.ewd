@@ -1570,11 +1570,11 @@
                 </option>
                 <option>
                     <name>MemFile</name>
-                    <state>$TOOLKIT_DIR$\CONFIG\debugger\NXP\iolpc2138.ddf</state>
+                    <state>$TOOLKIT_DIR$\CONFIG\debugger\NXP\LPC2138.ddf</state>
                 </option>
                 <option>
                     <name>RunToEnable</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>RunToName</name>
@@ -1614,7 +1614,7 @@
                 </option>
                 <option>
                     <name>OCLastSavedByProductVersion</name>
-                    <state>6.21.3.52923</state>
+                    <state>9.10.2.39304</state>
                 </option>
                 <option>
                     <name>UseFlashLoader</name>
@@ -1638,7 +1638,7 @@
                 </option>
                 <option>
                     <name>FlashLoadersV3</name>
-                    <state>$TOOLKIT_DIR$\config\flashloader\NXP\FlashNXPLPC512k1.board</state>
+                    <state>$TOOLKIT_DIR$\config\flashloader\NXP\FlashNXPLPC512K1.board</state>
                 </option>
                 <option>
                     <name>OCImagesSuppressCheck1</name>
@@ -1706,7 +1706,7 @@
                 </option>
                 <option>
                     <name>OCMulticoreNrOfCores</name>
-                    <state></state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>OCMulticoreWorkspace</name>
